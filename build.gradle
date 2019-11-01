@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    // Gradle第三方插件，可通过swagger接口文档生成代码
+    id "org.hidetake.swagger.generator" version "2.18.1"
+    // Gradle官方插件，用来发布jar包
+    id "maven-publish"
+}
+
+repositories {
+    // Maven仓库配置为aliyun，加速jar包下载
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+}
+
+dependencies {
+    // 以下swaggerCodegen，三选一
+    // swaggerCodegen 'io.swagger:swagger-codegen-cli:2.4.2'             // Swagger Codegen V2
+    // swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.5'  // or Swagger Codegen V3
+    swaggerCodegen 'org.openapitools:openapi-generator-cli:3.3.4'     // or OpenAPI Generator
+    // 用于生成API HTML文档。目前测试example没有显示出来，暂时没有花时间去研究
+    swaggerUI 'org.webjars:swagger-ui:3.10.0'
+    // 引入spring-boot-starter-webflux:2.1.x版本，以支持reactive，打包时需要
+    implementation('org.springframework.boot:spring-boot-starter-webflux:2.1.7.RELEASE')
+    // 引入springfox-swagger2，以支持swagger生成的接口，打包时需要
+    implementation("io.springfox:springfox-swagger2:2.9.2")
+}
+
+// 代码生成，api定义yaml配置
+swaggerSources {
+    buddie {
+        // 指定api yaml文件
+        inputFile = file("$projectDir/src/main/resources/swagger/openApi.yaml")
+        code {
+            // 指定生成代码的类型
+            language = 'spring'
+            // 指定生成代码时的个性化配置文件
+            configFile = file("$projectDir/src/main/resources/swagger/config.json")
+        }
+        // 将生成的API文档，复制到指定目录下
+        ui {
+            doLast {
+                copy {
+                    from 'index.html'
+                    into outputDir
+                }
+            }
+        }
+    }
+}
+
+//编译依赖代码生成
+compileJava.dependsOn swaggerSources.buddie.code
+sourceSets.main.java.srcDir "${swaggerSources.buddie.code.outputDir}/src/main/java"
+
+//解决编译时乱码问题
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// 发布jar包
+publishing {
+    publications {
+        maven(MavenPublication) {
+            //指定group/artifact/version信息，可以不填。默认使用项目group/name/version作为groupId/artifactId/version
+            //artifactId = rootProject.name
+            //如果是war包填写components.web，如果是jar包填写components.java
+            from components.java
+        }
+    }
+    // 不配置repositories,会发布到本地maven仓库
+    repositories {
+        maven {
+            //指定要上传的maven私服仓库
+            url = "http://localhost:8081/repository/maven-releases/"
+            //认证用户和密码
+            credentials {
+                username 'admin'
+                password 'buddie'
+            }
+        }
+    }
+}

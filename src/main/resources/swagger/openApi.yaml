@@ -1,0 +1,66 @@
+openapi: 3.0.0
+info:
+  description: <p>示例API <p>
+  version: '0.1'
+  title: '示例API'
+  contact:
+    name: buddie
+servers:
+- url: 'http://127.0.0.1:8080'
+  description: http请求
+tags:
+- name: 用户
+  description: 用户
+paths:
+  '/users':
+    get:
+      tags:
+      - 用户
+      summary: 查询用户列表
+      description: 查询用户列表
+      operationId: describeUsers
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userList'
+              example:
+                users:
+                - id: 'u-123'
+                  userName: 'buddie'
+                  description: ''
+                  password: '*************'
+                  createdTime: '2018-12-29T06:16:50Z'
+components:
+  schemas:
+    userList:
+      type: object
+      description: 用户列表
+      properties:
+        registries:
+          type: array
+          items:
+            $ref: '#/components/schemas/user'
+    user:
+      type: object
+      description: 用户信息
+      properties:
+        id:
+          type: string
+          description: 用户ID
+        userName:
+          type: string
+          description: 用户名称
+        description:
+          type: string
+          description: 用户描述
+        password:
+          type: string
+          description: 用户密码
+        createdTime:
+          type: string
+          format: 'date-time'
+          description: 注册表创建时间
+          readOnly: true
