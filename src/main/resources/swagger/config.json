@@ -6,7 +6,7 @@
   "modelPackage": "cn.buddie.demo.api.model",
   "apiPackage": "cn.buddie.demo.api.controller",
   "invokerPackage": "cn.buddie.demo.api",
-  "java8": false,
+  "java8": true,
   "configPackage": "cn.buddie.demo.api.configuration",
   "useBeanValidation": true,
   "interfaceOnly": true,
