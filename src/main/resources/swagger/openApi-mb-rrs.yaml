@@ -1,0 +1,679 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+  version: 0.1.9
+
+servers:
+- url: http://api.example.com/v1
+  description: Optional server description, e.g. Main (production) server
+- url: http://staging-api.example.com
+  description: Optional server description, e.g. Internal staging server for testing
+
+paths:
+  '/categories':
+    parameters:
+    - name: Authorization
+      in: header
+      description: Authorization信息
+      schema:
+        type: string
+    post:
+      summary: 创建商品分类
+      operationId: createCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: 创建商品分类成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+    get:
+      summary: 查询商品分类列表
+      operationId: queryCategories
+      parameters:
+      - name: pid
+        in: query
+        description: 上级分类ID
+        schema:
+          type: integer
+          format: int64
+      - name: pageNo
+        in: query
+        description: 页码
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        description: 页长
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        '200':    # status code
+          description: 商品品类列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeCategoriesResponse'
+  '/categories/{id}':
+    parameters:
+      - name: Authorization
+        in: header
+        description: Authorization信息
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: 品类ID
+        schema:
+          type: integer
+          format: int64
+    put:
+      summary: 修改品类
+      description: 修改品类
+      operationId: updateCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+    delete:
+      summary: 删除品类
+      description: 删除品类
+      operationId: deleteCategory
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+  '/products':
+    parameters:
+    - name: Authorization
+      in: header
+      description: Authorization信息
+      schema:
+        type: string
+    post:
+      summary: 增加商品种类
+      operationId: createProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: no content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+    get:
+      summary: 查询商品
+      operationId: describeProducts
+      parameters:
+      - name: categoryId
+        in: query
+        description: 品类ID
+        schema:
+          type: integer
+          format: int64
+      - name: pageNo
+        in: query
+        description: 页码
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        description: 页长
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        '200':    # status code
+          description: 商品列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeProductsResponse'
+  '/products/{id}':
+    parameters:
+      - name: Authorization
+        in: header
+        description: Authorization信息
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: 商品ID
+        schema:
+          type: integer
+          format: int64
+    put:
+      summary: 修改商品
+      description: 修改商品
+      operationId: updateProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+    delete:
+      summary: 删除商品
+      description: 删除商品
+      operationId: deleteProduct
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+  '/product_logs':
+    parameters:
+    - name: Authorization
+      in: header
+      description: Authorization信息
+      schema:
+        type: string
+    get:
+      summary: 商品日志查询
+      operationId: queryProductLog
+      parameters:
+      - name: infoDate
+        in: query
+        description: 商品上报日期
+        schema:
+          type: string
+      - name: categoryId
+        in: query
+        description: 品类ID
+        schema:
+          type: integer
+          format: int64
+      - name: productId
+        in: query
+        description: 商品ID
+        schema:
+          type: integer
+          format: int64
+      - name: departmentId
+        in: query
+        description: 部门ID
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: 商品上报日志
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeProductLogsResponse'
+    post:
+      summary: 商品日志提报
+      operationId: createProductLog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpProductLogs'
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+  '/product_logs_latest':
+    parameters:
+      - name: Authorization
+        in: header
+        description: Authorization信息
+        schema:
+          type: string
+    get:
+      summary: 最近一次商品日志查询
+      operationId: queryLatestProductLog
+      parameters:
+        - name: infoDate
+          in: query
+          description: 商品上报日期
+          schema:
+            type: string
+        - name: productId
+          in: query
+          description: 商品ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 商品上报日志
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeLatestProductLogResponse'
+  '/sub_departments':
+    parameters:
+      - name: Authorization
+        in: header
+        description: Authorization信息
+        schema:
+          type: string
+    get:
+      description: 查询所有子部门
+      summary: 查询所有子部门
+      operationId: queryAllSubDepartments
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryAllSubDepartmentsResponse'
+  '/department/{id}/logs':
+    parameters:
+      - name: Authorization
+        in: header
+        description: Authorization信息
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: 部门ID
+        schema:
+          type: integer
+          format: int64
+    post:
+      summary: 药店提报每日状态
+      description: 药店提报每日状态
+      operationId: createDepartmentLog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentLog'
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+    get:
+      summary: 查询指定药店的状态
+      description: 查询指定药店的状态
+      operationId: queryDepartmentLogs
+      parameters:
+        - name: infoDate
+          in: query
+          description: 提报日期
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryDepartmentLogsResponse'
+components:
+  schemas:
+    Category:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 商品品类ID
+          readOnly: true
+        name:
+          type: string
+          description: 品类名
+        pid:
+          type: integer
+          format: int64
+          description: 上级品类id
+        fullPids:
+          type: string
+          description: 完整品类ID，所含所有上级品类，以-分隔
+          readOnly: true
+        createTime:
+          type: string
+          description: 创建时间
+          format: 'date-time'
+          readOnly: true
+    Product:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 商品ID
+          readOnly: true
+        name:
+          type: string
+          description: 商品名称
+        unit:
+          type: string
+          description: 计量单位
+        categoryId:
+          type: integer
+          format: int64
+          description: 商品品类ID
+        categoryName:
+          type: string
+          description: 商品品类名
+          readOnly: true
+        fullCategoryIds:
+          type: string
+          description: 完整品类ID，所含所有上级品类，以-分隔
+          readOnly: true
+        necessary:
+          type: boolean
+          description: 是否必填
+        createTime:
+          type: string
+          description: 创建时间
+          format: 'date-time'
+          readOnly: true
+    UpProductLogs:
+      description: 商品上报
+      properties:
+        productLogs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductLog'
+    ProductLog:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 商品上报记录ID
+          readOnly: true
+        userId:
+          type: integer
+          format: int64
+          description: 用户ID
+          readOnly: true
+        departmentId:
+          type: integer
+          format: int64
+          description: 部门ID
+          readOnly: true
+        parentDepartmentId:
+          type: integer
+          format: int64
+          description: 上级部门ID
+          readOnly: true
+        infoDate:
+          type: string
+          description: 商品上报日期
+          readOnly: true
+        productId:
+          type: integer
+          format: int64
+          description: 商品ID
+        productName:
+          type: string
+          description: 商品名称
+          readOnly: true
+        productStock:
+          type: number
+          description: 库存
+        productIn:
+          type: number
+          description: 当日入库
+        productOut:
+          type: number
+          description: 当日出库
+        productOutAccumulate:
+          type: number
+          description: 累计出库数量
+        fullCategoryIds:
+          type: string
+          description: 完整品类ID，所含所有上级品类，以-分隔
+          readOnly: true
+        createTime:
+          type: string
+          format: 'date-time'
+          description: 创建时间
+          readOnly: true
+        updateTime:
+          type: string
+          format: 'date-time'
+          description: 更新时间
+          readOnly: true
+    Response:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          type: object
+          description: 数据
+    DescribeCategoriesResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          type: object
+          properties:
+            page:
+              $ref: '#/components/schemas/Page'
+            list:
+              $ref: '#/components/schemas/CategoryList'
+    DescribeProductsResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          type: object
+          properties:
+            page:
+              $ref: '#/components/schemas/Page'
+            list:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+    CategoryList:
+      type: array
+      description: 商品品类列表
+      items:
+        $ref: '#/components/schemas/Category'
+    DescribeProductLogsResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          $ref: '#/components/schemas/ProductsLogInfo'
+    DescribeLatestProductLogResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          $ref: '#/components/schemas/ProductLog'
+    ProductsLogInfo:
+      type: object
+      description: 商品日志上报信息
+      properties:
+        reportedUsers:
+          type: object
+          description: 已上报企业信息
+        unreportedUsers:
+          type: object
+          description: 未上报企业信息
+        logs:
+          type: array
+          description: 上报为商品信息列表
+          items:
+            $ref: '#/components/schemas/ProductLog'
+    DepartmentLog:
+      type: object
+      description: 药店上报的每日状态
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 药店状态记录ID
+          readOnly: true
+        userId:
+          type: integer
+          format: int64
+          description: 用户ID
+          readOnly: true
+        departmentId:
+          type: integer
+          format: int64
+          description: 部门ID
+          readOnly: true
+        parentDepartmentId:
+          type: integer
+          format: int64
+          description: 上级部门ID
+          readOnly: true
+        infoDate:
+          type: string
+          description: 状态上报日期
+          readOnly: true
+        runStatus:
+          type: integer
+          format: int32
+          description: 运营状态：0-今日闭店,1-正常营业
+        infrared:
+          type: integer
+          format: int32
+          description: 是否有红外线测温仪：0-无,1-有
+        runForm:
+          type: integer
+          format: int32
+          description: 营业方式：0-临时窗口,1-开放营业
+    QueryDepartmentLogsResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentLog'
+    QueryAllSubDepartmentsResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Department'
+    Department:
+      properties:
+        departmentId:
+          type: integer
+          format: int64
+          description: 部门ID
+        departmentName:
+          type: string
+          description: 部门名称
+        companyType:
+          type: string
+          description: 企业性质
+        companyHead:
+          type: string
+          description: 上报人
+        userId:
+          type: integer
+          format: int64
+          description: 用户ID
+        pid:
+          type: integer
+          format: int64
+          description: 上级部门ID
+    Page:
+      properties:
+        pageNo:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+          readOnly: true
+        pageCount:
+          type: integer
+          readOnly: true

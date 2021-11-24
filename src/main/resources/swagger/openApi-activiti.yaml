@@ -1,0 +1,603 @@
+openapi: 3.0.0
+info:
+  description: <p>京东云的多云管理平台API规范 . <p>
+  version: '1.0'
+  title: 'JDFusion API规范'
+servers:
+  - url: 'http://127.0.0.1:9081'
+    description: http请求
+tags:
+  - name: 流程管理
+    description: 流程管理
+paths:
+  '/process-instances':
+    post:
+      tags:
+        - 流程管理
+      summary: 新建流程实例
+      operationId: createProcessInstance
+      requestBody:
+        description: 新建流程实例
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProcessInstanceInfo'
+            example:
+              processInstance:
+                processDefinitionId: pd-123
+                businessKey: ""
+                name: abcde
+                variables: {
+                  "initiatorPhoneNum": 13888888888
+                }
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedProcessInstanceInfo'
+              example:
+                processInstance:
+                  id: wf-123
+                  processDefinitionId: pd-123
+                  businessKey: ""
+                  name: abcde
+    get:
+      tags:
+        - 流程管理
+      summary: 查询流程实例列表
+      operationId: queryPageProcessInstances
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: 每页记录条数
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: sort
+          in: query
+          description: 按什么排序
+          required: false
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: 排序顺序，asc、desc
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: 实例状态，CREATED、RUNNING、SUSPENDED、CANCELLED、COMPLETED
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessInstancesPageInfo'
+              example:
+                pages:
+                  page: 2
+                  size: 20
+                  totalNum: 56
+                  list:
+                    - id: wf-123
+                      name: wf-name-123
+                      startDate: 2020-08-08T08:08:08Z
+                      initiator: zhangsan
+                      businessKey: ""
+                      status: CREATED
+                      parentId: wf-321
+                      processDefinitionId: pd-123
+                      processDefinitionKey: pdk-123
+                      processDefinitionVersion: 1
+  '/process-instances/{id}':
+    parameters:
+      - name: id
+        in: path
+        description: 流程实例ID
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - 流程管理
+      summary: 查询指定流程实例
+      operationId: queryProcessInstance
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessInstanceInfo'
+              example:
+                processInstance:
+                  id: wf-123
+                  name: wf-name-123
+                  startDate: 2020-08-08T08:08:08Z
+                  initiator: zhangsan
+                  businessKey: ""
+                  status: CREATED
+                  parentId: wf-321
+                  processDefinitionId: pd-123
+                  processDefinitionKey: pdk-123
+                  processDefinitionVersion: 1
+    delete:
+      tags:
+        - 流程管理
+      summary: 删除指定流程实例
+      operationId: deleteProcessInstance
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: 指定流程实例不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+  '/process-instances/{id}/tasks':
+    parameters:
+      - name: id
+        in: path
+        description: 流程实例ID
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - 流程管理
+      summary: 查询指定流程实例的任务列表
+      operationId: queryPageProcessInstanceTasks
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: 每页记录条数
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: sort
+          in: query
+          description: 按什么排序
+          required: false
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: 排序顺序，asc、desc
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: 实例状态，CREATED、RUNNING、SUSPENDED、CANCELLED、COMPLETED
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessInstanceTasksPageInfo'
+              example:
+                pages:
+                  page: 2
+                  size: 20
+                  totalNum: 56
+                  processInstanceId: wf-123
+                  list:
+                    - id: wft-123
+                      name: wft-name-123
+                      startDate: 2020-08-08T08:08:08Z
+                      completedDate: 2020-09-09T09:09:09Z
+                      owner: zhangsan
+                      assignee: lisi
+                      processDefinitionId: pd-123
+                      processDefinitionKey: pdk-123
+                      processDefinitionVersion: 1
+                      processInstanceId: wf-123
+                      businessKey: ""
+                      status: CREATED
+                      parentId: wft-321
+  '/process-instances/{id}/variables':
+    parameters:
+      - name: id
+        in: path
+        description: 流程实例ID
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - 流程管理
+      summary: 查询指定流程实例的变量
+      operationId: queryProcessInstanceVariables
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessInstanceVariablesInfo'
+              example:
+                variables:
+                  - name: initiatorPhoneNum
+                    type: long
+                    value: 13888888888
+                    processInstanceId: wf-123
+  '/tasks':
+    get:
+      tags:
+        - 流程管理
+      summary: 查询任务列表
+      operationId: queryPageTasks
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: 每页记录条数
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: sort
+          in: query
+          description: 按什么排序
+          required: false
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: 排序顺序，asc、desc
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: 实例状态，CREATED、RUNNING、SUSPENDED、CANCELLED、COMPLETED
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TasksPageInfo'
+              example:
+                pages:
+                  page: 2
+                  size: 20
+                  totalNum: 56
+                  list:
+                    - id: wft-123
+                      name: wft-name-123
+                      startDate: 2020-08-08T08:08:08Z
+                      completedDate: 2020-09-09T09:09:09Z
+                      owner: zhangsan
+                      assignee: lisi
+                      processDefinitionId: pd-123
+                      processDefinitionKey: pdk-123
+                      processDefinitionVersion: 1
+                      processInstanceId: wf-123
+                      businessKey: ""
+                      status: CREATED
+                      parentId: wft-321
+  '/tasks/{id}':
+    parameters:
+      - name: id
+        in: path
+        description: 任务ID
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - 流程管理
+      summary: 查询指定任务
+      operationId: queryTask
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskInfo'
+              example:
+                task:
+                  id: wft-123
+                  name: wft-name-123
+                  startDate: 2020-08-08T08:08:08Z
+                  completedDate: 2020-09-09T09:09:09Z
+                  owner: zhangsan
+                  assignee: lisi
+                  processDefinitionId: pd-123
+                  processDefinitionKey: pdk-123
+                  processDefinitionVersion: 1
+                  processInstanceId: wf-123
+                  businessKey: ""
+                  status: CREATED
+                  parentId: wft-321
+  '/tasks/{id}:complete':
+    parameters:
+      - name: id
+        in: path
+        description: 任务ID
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - 流程管理
+      summary: 完成任务
+      operationId: completeTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteTaskInfo'
+            example:
+              task:
+                variable:
+                  taskId: t-123
+      responses:
+        '204':
+          description: no content
+components:
+  schemas:
+    CreateProcessInstanceInfo:
+      properties:
+        processInstance:
+          $ref: '#/components/schemas/CreateProcessInstance'
+    CreateProcessInstance:
+      properties:
+        processDefinitionId:
+          type: string
+          description: 流程实例ID
+        businessKey:
+          type: string
+          description: 业务关键词
+        name:
+          type: string
+          description: 名称
+        variables:
+          type: object
+          description: 变量
+          additionalProperties:
+            type: object
+          example:
+              key: {}
+    CreatedProcessInstanceInfo:
+      properties:
+        processInstance:
+          $ref: '#/components/schemas/CreatedProcessInstance'
+    CreatedProcessInstance:
+      allOf:
+        - $ref: '#/components/schemas/CreateProcessInstance'
+        - properties:
+            id:
+              type: string
+              description: 流程实例ID
+    ProcessInstancesPageInfo:
+      properties:
+        pages:
+          $ref: '#/components/schemas/ProcessInstancesPage'
+    ProcessInstancesPage:
+      allOf:
+        - $ref: '#/components/schemas/Page'
+        - properties:
+            list:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProcessInstance'
+    ProcessInstance:
+      properties:
+        id:
+          type: string
+          description: 流程实例ID
+        name:
+          type: string
+          description: 流程实例名称
+        startDate:
+          type: string
+          format: 'date-time'
+          description: 创建时间
+        initiator:
+          type: string
+          description: 创建者
+        businessKey:
+          type: string
+          description: 业务关键词
+        status:
+          type: string
+          description: 状态，CREATED、RUNNING、SUSPENDED、CANCELLED、COMPLETED
+        parentId:
+          type: string
+          description: 父ID
+        processDefinitionId:
+          type: string
+          description: 流程ID
+        processDefinitionKey:
+          type: string
+          description: 流程Key
+        processDefinitionVersion:
+          type: integer
+          format: int32
+          description: 流程版本
+    ProcessInstanceInfo:
+      properties:
+        processInstance:
+          $ref: '#/components/schemas/ProcessInstance'
+    ProcessInstanceTasksPageInfo:
+      properties:
+        pages:
+          $ref: '#/components/schemas/ProcessInstanceTasksPage'
+    ProcessInstanceTasksPage:
+      allOf:
+        - $ref: '#/components/schemas/Page'
+        - properties:
+            processInstanceId:
+              type: string
+              description: 流程实例ID
+            list:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+    TasksPageInfo:
+      properties:
+        pages:
+          $ref: '#/components/schemas/TasksPage'
+    TasksPage:
+      allOf:
+        - $ref: '#/components/schemas/Page'
+        - properties:
+            list:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+    TaskInfo:
+      properties:
+        task:
+          $ref: '#/components/schemas/Task'
+    Task:
+      properties:
+        id:
+          type: string
+          description: ID
+        owner:
+          type: string
+          description: 所有者
+        assignee:
+          type: string
+          description: 代理人
+        name:
+          type: string
+          description: 名称
+        description:
+          type: string
+          description: 描述
+        createDate:
+          type: string
+          format: 'date-time'
+          description: 创建时间
+        processDefinitionId:
+          type: string
+          description: 流程ID
+        processInstanceId:
+          type: string
+          description: 流程实例ID
+        parentTaskId:
+          type: string
+          description: 父任务ID
+        status:
+          type: string
+          description: 任务状态，CREATED、ASSIGNED、SUSPENDED、COMPLETED、CANCELLED、DELETED
+        completedDate:
+          type: string
+          format: 'date-time'
+          description: 完成时间
+        duration:
+          type: integer
+          format: int64
+          description: 历经时长，单位待确定
+        processDefinitionVersion:
+          type: integer
+          format: int32
+          description: 流程版本
+        businessKey:
+          type: string
+          description: 业务关键词
+    CompleteTaskInfo:
+      properties:
+        task:
+          $ref: '#/components/schemas/CompleteTask'
+    CompleteTask:
+      properties:
+        variable:
+          type: object
+          description: 变量
+          additionalProperties:
+            type: object
+    ProcessInstanceVariablesInfo:
+      properties:
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProcessInstanceVariable'
+    ProcessInstanceVariable:
+      properties:
+        name:
+          type: string
+          description: 名称
+        type:
+          type: string
+          description: 属性
+        value:
+          type: object
+          description: 属性值
+        processInstanceId:
+          type: string
+          description: 流程实例ID
+    Page:
+      properties:
+        page:
+          type: integer
+          format: int32
+          description: 当前页码
+        size:
+          type: integer
+          format: int32
+          description: 每页记录条数
+        totalNum:
+          type: integer
+          format: int64
+          description: 总记录数
+    returnError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            info:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 10位错误码；1-4服务码，5-7业务码，8-0错误码
+                message:
+                  type: string
+                  description: 错误信息
+            payload:
+              type: object

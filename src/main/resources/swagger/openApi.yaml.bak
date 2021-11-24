@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  description: <p>京东云的多云管理平台API规范 . <p>
+  version: '1.0'
+  title: 'JDFusion API规范'
+  contact:
+    name: 多云编排项目组
+servers:
+- url: 'http://127.0.0.1:9081'
+  description: http请求
+tags:
+- name: Compute
+  description: 计算资源相关操作
+paths:
+  '/vms/{id}/vnc':
+    parameters:
+    - name: x-jdcloud-fusion-cloudid
+      in: header
+      description: 云注册信息ID
+      required: false
+      schema:
+        type: string
+    - name: id
+      in: path
+      description: 资源实例ID
+      required: true
+      schema:
+        type: string
+    get:
+      tags:
+      - Compute
+      operationId: describeInstanceVncUrl
+      summary: 获取指定云主机实例的管理终端地址
+      description: 获取指定云主机实例的管理终端地址
+      responses:
+        '404':
+          description: 指定云主机实例不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vmVncInfo'
+    put:
+      tags:
+      - Compute
+      summary: 修改指定云主机实例的管理终端密码
+      description: 修改指定云主机实例的管理终端密码
+      operationId: modifyInstanceVncPassword
+      requestBody:
+        description: 管理终端密码
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vnc'
+            example:
+              vnc:
+                password: '123456'
+      responses:
+        '404':
+          description: 指定云主机实例不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+        '204':
+          description: No content
+components:
+  schemas:
+    vnc:
+      type: object
+      description: vnc信息
+      properties:
+        vnc:
+          $ref: '#/components/schemas/vncInfo'
+    vncInfo:
+      type: object
+      description: vnc信息详情
+      properties:
+        password:
+          description: vnc密码
+          type: string
+    returnError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            info:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 10位错误码；1-4服务码，5-7业务码，8-0错误码
+                message:
+                  type: string
+                  description: 错误信息
+            payload:
+              type: object
+externalDocs:
+  url: 'http://www.jdcloud.com'
+  description: '@京东多云平台'

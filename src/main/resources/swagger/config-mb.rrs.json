@@ -1,13 +1,13 @@
 {
   "library": "spring-boot",
   "dateLibrary": "java8",
-  "reactive": true,
+  "reactive": false,
   "hideGenerationTimestamp": true,
-  "modelPackage": "com.jdcloud.csd.fusion.dispatcher.api.model",
-  "apiPackage": "com.jdcloud.csd.fusion.dispatcher.api.controller",
-  "invokerPackage": "com.jdcloud.csd.fusion.dispatcher.api",
+  "modelPackage": "com.jdcd.microservice.dm.dto",
+  "apiPackage": "com.jdcd.microservice.dm.service",
+  "invokerPackage": "com.jdcd.microservice.dm",
   "java8": true,
-  "configPackage": "com.jdcloud.csd.fusion.dispatcher.api.configuration",
+  "configPackage": "com.jdcd.microservice.dm.configuration",
   "useBeanValidation": true,
   "interfaceOnly": true,
   "typeMappings": {

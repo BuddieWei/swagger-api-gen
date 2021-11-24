@@ -1,0 +1,349 @@
+openapi: 3.0.0
+info:
+  description: <p>京东云的多云管理平台API规范 . <p>
+  version: '1.0'
+  title: 'JDFusion API规范'
+servers:
+  - url: 'http://127.0.0.1:9081'
+    description: http请求
+tags:
+  - name: 账号管理
+    description: 账号管理
+paths:
+  '/aksecret-valid':
+    post:
+      tags:
+        - 账号管理
+      summary: 身份验证
+      operationId: validAkSecret
+      requestBody:
+        description: 身份验证
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AkSecretValid'
+            example:
+              valid:
+                ak: ak
+                signVersion: v1
+                signature: abcde
+                protocol: HTTP
+                uri: /clouds
+                method: GET
+                params: {
+                  "name": "test",
+                  "vender": "jdcloud"
+                }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AkSecretValided'
+              example:
+                valid:
+                  enable: true
+                  reason:
+                  pin: pin
+  '/aksecrets':
+    parameters:
+      - name: x-jdcloud-fusion-userid
+        in: header
+        description: 用户ID
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - 账号管理
+      summary: 查询AK、SK列表
+      description: 查询AK列表
+      operationId: describeAks
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AkInfos'
+              example:
+                aks:
+                  - ak: ak
+                    status: 1
+                    createTime: '2018-08-18T18:18:18Z'
+    post:
+      tags:
+        - 账号管理
+      summary: 申请新的AK\SK
+      description: 申请新的AK\SK
+      operationId: createAkSecret
+      responses:
+        201:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AkInfo'
+              example:
+                akdetail:
+                  ak: ak
+                  status: 1
+                  createTime: '2018-08-18T18:18:18Z'
+  '/aksecrets/{ak}':
+    parameters:
+      - name: x-jdcloud-fusion-userid
+        in: header
+        description: 用户ID
+        required: true
+        schema:
+          type: string
+      - name: ak
+        in: path
+        description: Access Key
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - 账号管理
+      summary: 获取指定的Access Key
+      operationId: describeAk
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AkInfo'
+              example:
+                akdetail:
+                  ak: ak
+                  status: 1
+                  createTime: '2018-08-18T18:18:18Z'
+        '404':
+          description: 指定的Access Key不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+    delete:
+      tags:
+        - 账号管理
+      summary: 删除Access Key
+      operationId: deleteAk
+      responses:
+        '204':
+          description: 删除成功
+        '404':
+          description: 指定的Access Key不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+  '/aksecrets/{ak}:enable':
+    parameters:
+      - name: x-jdcloud-fusion-userid
+        in: header
+        description: 用户ID
+        required: true
+        schema:
+          type: string
+      - name: ak
+        in: path
+        description: Access Key
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+        - 账号管理
+      summary: 启用Access Key
+      operationId: enableAk
+      responses:
+        '204':
+          description: 启用成功
+        '404':
+          description: 指定的Access Key不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+        '400':
+          description: 参数不正确
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+  '/aksecrets/{ak}:disable':
+    parameters:
+      - name: x-jdcloud-fusion-userid
+        in: header
+        description: 用户ID
+        required: true
+        schema:
+          type: string
+      - name: ak
+        in: path
+        description: Access Key
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+        - 账号管理
+      summary: 禁用Access Key
+      operationId: disableAk
+      responses:
+        '204':
+          description: 禁用成功
+        '404':
+          description: 指定的Access Key不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+        '400':
+          description: 参数不正确
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+  '/aksecrets/{ak}:show':
+    parameters:
+      - name: x-jdcloud-fusion-userid
+        in: header
+        description: 用户ID
+        required: true
+        schema:
+          type: string
+      - name: ak
+        in: path
+        description: Access Key
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - 账号管理
+      summary: 获取Access Key Secret
+      operationId: describeAkSecret
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AkSecretShow'
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AkSecret'
+        '404':
+          description: 指定的Access Key不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnError'
+components:
+  schemas:
+    AkSecret:
+      properties:
+        secret:
+          $ref: '#/components/schemas/AkSecretDetail'
+    AkSecretDetail:
+      properties:
+        sk:
+          type: string
+          description: Access Key Secret
+    AkInfos:
+      properties:
+        aks:
+          type: array
+          items:
+            $ref: '#/components/schemas/AkInfoDetail'
+    AkInfo:
+      properties:
+        akdetail:
+          $ref: '#/components/schemas/AkInfoDetail'
+    AkInfoDetail:
+      properties:
+        ak:
+          type: string
+          description: Access Key
+        status:
+          type: integer
+          format: int32
+          description: 状态，0：禁用，1：启用
+          readOnly: true
+        createTime:
+          type: string
+          format: 'date-time'
+          description: 创建时间
+          readOnly: true
+    AkSecretValid:
+      properties:
+        valid:
+          $ref: '#/components/schemas/AkSecretValidDetail'
+    AkSecretValidDetail:
+      properties:
+        ak:
+          type: string
+          description: access key
+        signVersion:
+          type: string
+          description: 签名版本
+        signature:
+          type: string
+          description: 签名
+        protocol:
+          type: string
+          description: 请求协议，HTTP、HTTPS等
+        uri:
+          type: string
+          description: 请求路径
+        method:
+          type: string
+          description: 请求方式，GET\PUT\POST\DELETE\PATCH
+        params:
+          type: object
+          description: 请求参数
+          additionalProperties:
+            type: string
+    AkSecretValided:
+      properties:
+        valided:
+          $ref: '#/components/schemas/AkSecretValidedDetail'
+    AkSecretValidedDetail:
+      properties:
+        enable:
+          type: boolean
+          description: 身份验证是否通过
+        reason:
+          type: string
+          description: 不可用的原因
+        pin:
+          type: string
+          description: AK对应用户Pin
+    AkSecretShow:
+      properties:
+        
+    returnError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            info:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: 10位错误码；1-4服务码，5-7业务码，8-0错误码
+                message:
+                  type: string
+                  description: 错误信息
+            payload:
+              type: object

@@ -1,0 +1,211 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+  version: 0.1.9
+
+servers:
+- url: http://api.example.com/v1
+  description: Optional server description, e.g. Main (production) server
+- url: http://staging-api.example.com
+  description: Optional server description, e.g. Internal staging server for testing
+
+paths:
+  '/materials':
+    parameters:
+    - name: Authorization
+      in: header
+      description: Authorization信息
+      schema:
+        type: string
+    post:
+      summary: 增加物资种类
+      operationId: createMaterial
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Material'
+      responses:
+        '200':
+          description: no content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMaterialResponse'
+    get:
+      summary: 查询物资种类
+      operationId: describeMaterials
+      responses:
+        '200':    # status code
+          description: 物资种类列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeMaterialsResponse'
+  '/material_logs':
+    parameters:
+    - name: Authorization
+      in: header
+      description: Authorization信息
+      schema:
+        type: string
+    get:
+      summary: 物资日志查询(企业用户)
+      operationId: queryMaterialLog
+      parameters:
+      - name: infoDate
+        in: query
+        description: 物资上报日期
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 物资上报日志
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeMaterialLogResponse'
+    post:
+      summary: 物资日志提报
+      operationId: createMaterialLog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterialLog'
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMaterialLogResponse'
+components:
+  schemas:
+    Material:
+      properties:
+        id:
+          type: integer
+          description: 物质ID
+          readOnly: true
+        name:
+          type: string
+          description: 物质名称
+        createTime:
+          type: string
+          description: 创建时间
+          format: 'date-time'
+          readOnly: true
+    MaterialLog:
+      properties:
+        id:
+          type: string
+          description: 物质上报记录ID
+          readOnly: true
+        userId:
+          type: integer
+          description: 用户ID
+          readOnly: true
+        infoDate:
+          type: string
+          description: 物质上报日期
+          readOnly: true
+        materialId:
+          type: integer
+          description: 物质ID
+        materialStock:
+          type: number
+          description: 昨日库存
+        materialIn:
+          type: number
+          description: 当日入库
+        materialOut:
+          type: number
+          description: 当日出库
+        materialStockCurr:
+          type: number
+          description: 当日库存
+          readOnly: true
+        createTime:
+          type: string
+          description: 操作时间
+          readOnly: true
+    CreateMaterialResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          type: object
+          description: 数据
+    DescribeMaterialsResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          $ref: '#/components/schemas/MaterialList'
+    MaterialList:
+      type: object
+      description: 物资列表
+      properties:
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/Material'
+    DescribeMaterialLogResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          $ref: '#/components/schemas/MaterialLogInfo'
+    MaterialLogInfo:
+      type: object
+      description: 物资日志上报信息
+      properties:
+        materialLog:
+          $ref: '#/components/schemas/MaterialLog'
+    CreateMaterialLogResponse:
+      properties:
+        taskid:
+          type: string
+          description: 任务ID
+        code:
+          type: integer
+          description: 状态码
+        message:
+          type: string
+          description: 说明信息
+        data:
+          type: object
+          description: 数据
+    Page:
+      properties:
+        pageNo:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        pageCount:
+          type: integer
